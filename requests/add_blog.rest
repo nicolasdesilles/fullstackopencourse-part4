@@ -2,8 +2,8 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-    "title": "This is a blog", 
-    "author": "John Bob",
-    "url": "https://google.com",
+    "title": "This is another blog", 
+    "author": "Emma Smith",
+    "url": "https://lemonde.fr",
     "likes": 20
 }
