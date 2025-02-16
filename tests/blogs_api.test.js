@@ -87,6 +87,30 @@ test('A new blog without the \'likes\' field gets assigned a number of likes of 
 
 })
 
+test('It is not possible to add a blog without a title field to the DB', async() => {
+  const newBlog = {
+    author: 'No title',
+    url: 'https://pointerpointer.com/',
+    likes: 2
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
+
+test('It is not possible to add a blog without a URL field to the DB', async() => {
+  const newBlog = {
+    title: 'No URL',
+    author: 'John Bob',
+    likes: 2
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
+
 after(async() => {
   await mongoose.connection.close()
 })
