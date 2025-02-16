@@ -119,3 +119,30 @@ describe('favoriteBlog Function', () => {
 
 })
 
+describe('maxBlogs Function', () => {
+
+  test('Function call on an empty list returns NaN', () => {
+    const result = listHelper.mostBlogs(emptyList)
+    assert.deepStrictEqual(result,NaN)
+  })
+
+  test('Function call on a list with one blog returns the author of that blog and a number of 1 blog', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog)
+    const expectedResult = {
+      author: 'Edsger W. Dijkstra',
+      blogs: 1
+    }
+    assert.deepStrictEqual(result,expectedResult)
+  })
+
+  test('Function call on a bigger list returns the right author and the right amount of blogs', () => {
+    const result = listHelper.mostBlogs(listWithManyBlogs)
+    const expectedResult = {
+      author: 'Robert C. Martin',
+      blogs: 3
+    }
+    assert.deepStrictEqual(result,expectedResult)
+  })
+
+})
+
