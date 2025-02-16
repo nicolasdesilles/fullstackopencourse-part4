@@ -84,6 +84,15 @@ test('There are the correct number of blogs in the test DB', async() => {
   assert.strictEqual(response.body.length,initialBlogs.length)
 })
 
+test('The unique identifier field of the blogs is named \'id\'', async() => {
+  const response = await api.get('/api/blogs')
+  const hasIDfield = response.body.map(blog => Object.keys(blog).includes('id'))
+  const expected = new Array(response.body.length).fill(true)
+
+  assert.deepStrictEqual(hasIDfield,expected)
+
+})
+
 test('A valid blog can be added to the DB', async() => {
   const newBlog = {
     title: 'A new test blog',
