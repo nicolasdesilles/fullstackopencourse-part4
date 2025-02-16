@@ -21,20 +21,20 @@ beforeEach(async() => {
   }
 })
 
-test('Blogs are returned as JSON', async() => {
+test('blogs are returned as JSON', async() => {
   await api
     .get('/api/blogs')
     .expect(200)
     .expect('Content-Type',/application\/json/)
 })
 
-test('There are the correct number of blogs in the test DB', async() => {
+test('there are the correct number of blogs in the test DB', async() => {
   const blogsInDb = await helper.blogsInDb()
 
   assert.strictEqual(blogsInDb.length,helper.initialBlogs.length)
 })
 
-test('The unique identifier field of the blogs is named \'id\'', async() => {
+test('the unique identifier field of the blogs is named \'id\'', async() => {
   const blogsInDb = await helper.blogsInDb()
   const hasIDfield = blogsInDb.map(blog => Object.keys(blog).includes('id'))
   const expected = new Array(blogsInDb.length).fill(true)
@@ -43,7 +43,7 @@ test('The unique identifier field of the blogs is named \'id\'', async() => {
 
 })
 
-test('A valid blog can be added to the DB', async() => {
+test('a valid blog can be added to the DB', async() => {
   const newBlog = {
     title: 'A new test blog',
     author: 'John Bob',
@@ -65,7 +65,7 @@ test('A valid blog can be added to the DB', async() => {
 
 })
 
-test('A new blog without the \'likes\' field gets assigned a number of likes of 0', async() => {
+test('a new blog post without the \'likes\' field gets assigned a number of likes of 0', async() => {
   const newBlog = new Blog({
     title: 'A new test blog without likes',
     author: 'No likes',
@@ -87,7 +87,7 @@ test('A new blog without the \'likes\' field gets assigned a number of likes of 
 
 })
 
-test('It is not possible to add a blog without a title field to the DB', async() => {
+test('adding a blog without a title field to the DB fails', async() => {
   const newBlog = {
     author: 'No title',
     url: 'https://pointerpointer.com/',
@@ -99,7 +99,7 @@ test('It is not possible to add a blog without a title field to the DB', async()
     .expect(400)
 })
 
-test('It is not possible to add a blog without a URL field to the DB', async() => {
+test('adding a blog without a URL field to the DB fails', async() => {
   const newBlog = {
     title: 'No URL',
     author: 'John Bob',
@@ -109,6 +109,23 @@ test('It is not possible to add a blog without a URL field to the DB', async() =
     .post('/api/blogs')
     .send(newBlog)
     .expect(400)
+})
+
+test('deleting a blog post by id from the DB is possible', async() => {
+  const newBlog = new Blog({
+    title: 'A test blog that will be added then deleted',
+    author: 'John Bob',
+    url: 'https://pointerpointer.com/',
+    likes: 20
+  })
+  await newBlog.save()
+
+  const newBlogID = newBlog._id.toString()
+
+  await api
+    .delete(`/api/blogs/${newBlogID}`)
+    .expect(204)
+
 })
 
 after(async() => {
