@@ -100,7 +100,6 @@ test('A valid blog can be added to the DB', async() => {
     url: 'https://pointerpointer.com/',
     likes: 25
   }
-
   await api
     .post('/api/blogs')
     .send(newBlog)
