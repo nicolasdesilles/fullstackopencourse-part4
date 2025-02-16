@@ -5,68 +5,18 @@ const Blog = require('../models/blog')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const assert = require('assert')
+const helper = require('./tests_helper')
 
 const app = require('../app')
 
 const api = supertest(app)
 
-const initialBlogs = [
-  {
-    _id: '5a422a851b54a676234d17f7',
-    title: 'React patterns',
-    author: 'Michael Chan',
-    url: 'https://reactpatterns.com/',
-    likes: 7,
-    __v: 0
-  },
-  {
-    _id: '5a422aa71b54a676234d17f8',
-    title: 'Go To Statement Considered Harmful',
-    author: 'Edsger W. Dijkstra',
-    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
-    likes: 5,
-    __v: 0
-  },
-  {
-    _id: '5a422b3a1b54a676234d17f9',
-    title: 'Canonical string reduction',
-    author: 'Edsger W. Dijkstra',
-    url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
-    likes: 12,
-    __v: 0
-  },
-  {
-    _id: '5a422b891b54a676234d17fa',
-    title: 'First class tests',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
-    likes: 10,
-    __v: 0
-  },
-  {
-    _id: '5a422ba71b54a676234d17fb',
-    title: 'TDD harms architecture',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
-    likes: 0,
-    __v: 0
-  },
-  {
-    _id: '5a422bc61b54a676234d17fc',
-    title: 'Type wars',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
-    likes: 2,
-    __v: 0
-  }
-]
-
 beforeEach(async() => {
 
   await Blog.deleteMany({})
 
-  for (let i=0; i < initialBlogs.length; i++) {
-    let blogObject = new Blog(initialBlogs[i])
+  for (let i=0; i < helper.initialBlogs.length; i++) {
+    let blogObject = new Blog(helper.initialBlogs[i])
     await blogObject.save()
   }
 })
@@ -79,15 +29,15 @@ test('Blogs are returned as JSON', async() => {
 })
 
 test('There are the correct number of blogs in the test DB', async() => {
-  const response = await api.get('/api/blogs')
+  const blogsInDb = await helper.blogsInDb()
 
-  assert.strictEqual(response.body.length,initialBlogs.length)
+  assert.strictEqual(blogsInDb.length,helper.initialBlogs.length)
 })
 
 test('The unique identifier field of the blogs is named \'id\'', async() => {
-  const response = await api.get('/api/blogs')
-  const hasIDfield = response.body.map(blog => Object.keys(blog).includes('id'))
-  const expected = new Array(response.body.length).fill(true)
+  const blogsInDb = await helper.blogsInDb()
+  const hasIDfield = blogsInDb.map(blog => Object.keys(blog).includes('id'))
+  const expected = new Array(blogsInDb.length).fill(true)
 
   assert.deepStrictEqual(hasIDfield,expected)
 
@@ -110,8 +60,30 @@ test('A valid blog can be added to the DB', async() => {
 
   const title = response.body.map(r => r.title)
 
-  assert.strictEqual(response.body.length, initialBlogs.length + 1)
+  assert.strictEqual(response.body.length, helper.initialBlogs.length + 1)
   assert(title.includes('A new test blog'))
+
+})
+
+test('A new blog without the \'likes\' field gets assigned a number of likes of 0', async() => {
+  const newBlog = new Blog({
+    title: 'A new test blog without likes',
+    author: 'No likes',
+    url: 'https://pointerpointer.com/'
+  })
+  await newBlog.save()
+
+  const newBlogID = newBlog._id.toString()
+
+  const response = await api
+    .get(`/api/blogs/${newBlogID}`)
+    .expect(200)
+
+  const fetchedNewBlog = response.body
+
+  const likes = fetchedNewBlog.likes
+
+  assert.strictEqual(likes,0)
 
 })
 
