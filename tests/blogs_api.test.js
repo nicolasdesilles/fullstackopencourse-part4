@@ -1,8 +1,10 @@
 const { test, after, beforeEach, describe } = require('node:test')
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 const supertest = require('supertest')
 const assert = require('assert')
 const helper = require('./tests_helper')
@@ -11,7 +13,7 @@ const app = require('../app')
 
 const api = supertest(app)
 
-describe('when some blog posts are initially saved in the DB', () => {
+describe('BLOGS - when some blog posts are initially saved in the DB', () => {
 
   //wiping the DB and adding test content
   beforeEach(async() => {
@@ -206,6 +208,47 @@ describe('when some blog posts are initially saved in the DB', () => {
 
   })
 
+})
+
+describe('USERS - when one user is initially saved in the DB', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('supersecret', 10)
+    const user = new User({
+      username: 'initialUser',
+      name: 'Initial User',
+      password: passwordHash
+    })
+
+    await user.save()
+  })
+
+  describe('addition of a user', () => {
+
+    test('succeeds with status code 201 if data is valid', async() => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = {
+        username: 'johnny',
+        name: 'John Bob',
+        password: 'verysecure'
+      }
+      await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(201)
+        .expect('Content-Type',/application\/json/)
+
+      const usersAtEnd = await helper.usersInDb()
+      const usernames = usersAtEnd.map(user => user.username)
+
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
+      assert(usernames.includes(newUser.username))
+
+    })
+
+  })
 })
 
 after(async() => {
