@@ -3,8 +3,8 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5pY28iLCJpZCI6IjY3YmEzZmI5ODRhYmRkNTA5M2YwMmUyOCIsImlhdCI6MTc0MDI1OTczM30.XZgyu9w94EaBA4l-3_o4wrOfl4h4d7xraI0JuTbQk1E
 
 {
-    "title": "This is a blog", 
-    "author": "Authorized",
-    "url": "https://google.com",
-    "likes": 0
+    "title": "Beautiful Blog", 
+    "author": "Bobby John",
+    "url": "https://liberation.fr",
+    "likes": 23
 }
