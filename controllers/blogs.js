@@ -5,7 +5,7 @@ const User = require('../models/user')
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
     .find({})
-    .populate('user', { username: 1, name: 1, id: 1})
+    .populate('user', { username: 1, name: 1, id: 1 })
   response.json(blogs)
 })
 
@@ -23,7 +23,7 @@ blogsRouter.post('/', async (request, response) => {
 
   const usersInDb = await User.find({})
   if (usersInDb.length === 0) {
-    response.status(400).json({ error: 'no users in db, please add at least one user before adding blogs'})
+    response.status(400).json({ error: 'no users in db, please add at least one user before adding blogs' })
   }
   const user = usersInDb[0]
 
