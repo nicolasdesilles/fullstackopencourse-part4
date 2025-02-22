@@ -1,9 +1,16 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
-  username: String,
+  username: {
+    type: String,
+    minLength: 3,
+    required: [true, 'username is required'],
+    unique: true
+  },
   name: String,
-  passwordHash: String,
+  passwordHash: {
+    type: String
+  },
   blogs: [
     {
       type: mongoose.Schema.Types.ObjectId,

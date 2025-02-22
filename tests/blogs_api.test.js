@@ -248,6 +248,104 @@ describe('USERS - when one user is initially saved in the DB', () => {
 
     })
 
+    test('fails with status code 400 and correct error message if username already exists', async() => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = {
+        username: 'initialUser',
+        name: 'Hey There',
+        password: 'veryverysecure'
+      }
+      const response = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+
+      const usersAtEnd = await helper.usersInDb()
+
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+      assert.strictEqual(response.body.error, 'a user with this username already exists')
+
+    })
+
+    test('fails with status code 400 and correct error message if username is missing', async() => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = {
+        name: 'Hey There',
+        password: 'veryverysecure'
+      }
+      const response = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+
+      const usersAtEnd = await helper.usersInDb()
+
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+      assert.match(response.body.error, /User validation failed: username: username is required/)
+
+    })
+
+    test('fails with status code 400 and correct error message if username less than 3 characters long', async() => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = {
+        username: 'us',
+        name: 'Hey There',
+        password: 'veryverysecure'
+      }
+      const response = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+
+      const usersAtEnd = await helper.usersInDb()
+      //console.log(response.body)
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+      assert.match(response.body.error, /User validation failed: username: Path.*minimum allowed length \(3\)/)
+
+    })
+
+    test('fails with status code 400 and correct error message if password is missing', async() => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = {
+        username: 'username',
+        name: 'Hey There',
+      }
+      const response = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+
+      const usersAtEnd = await helper.usersInDb()
+
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+      assert.match(response.body.error, /password is missing/)
+
+    })
+
+    test('fails with status code 400 and correct error message if password is less than 3 characters long', async() => {
+      const usersAtStart = await helper.usersInDb()
+
+      const newUser = {
+        username: 'username',
+        name: 'Hey There',
+        password: 'p'
+      }
+      const response = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+
+      const usersAtEnd = await helper.usersInDb()
+
+      assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+      assert.match(response.body.error, /password should be at least 3 characters long/)
+
+    })
+
   })
 })
 
