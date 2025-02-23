@@ -39,19 +39,34 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.put('/:id', async (request, response) => {
-  const newBlog = {
-    title: request.body.title,
-    author: request.body.author,
-    url: request.body.url,
-    likes: request.body.likes
+
+  const user = request.user
+
+  const blogToUpdate = await Blog.findById(request.params.id)
+  const blogCreatorUserId = blogToUpdate.user.toString()
+
+  if (blogCreatorUserId === user.id.toString()) {
+
+    const newBlog = {
+      title: request.body.title,
+      author: request.body.author,
+      url: request.body.url,
+      likes: request.body.likes,
+      user: user.id
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      request.params.id,
+      newBlog,
+      { new: true, runValidators: true, context: 'query' }
+    )
+
+    response.status(200).json(updatedBlog)
+  }
+  else {
+    response.status(401).json({ error: 'you are not logged in as the user who saved this blog post' })
   }
 
-  const updatedBlog = await Blog.findByIdAndUpdate(
-    request.params.id,
-    newBlog,
-    { new: true, runValidators: true, context: 'query' }
-  )
-  response.json(updatedBlog)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
