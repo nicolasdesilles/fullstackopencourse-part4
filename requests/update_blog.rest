@@ -6,5 +6,5 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5pY
     "title": "Cool blog",
     "author": "Jean Dupont",
     "url": "https://google.com",
-    "likes": 12
+    "likes": 13
 }
