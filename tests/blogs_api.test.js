@@ -81,6 +81,31 @@ describe('BLOGS - when some blog posts are initially saved in the DB', () => {
 
   describe('addition of a blog post', () => {
 
+    //login into the db as test user for tests and get token
+    let token = ''
+    beforeEach(async() => {
+      await User.deleteMany({})
+
+      const passwordHash = await bcrypt.hash(helper.testUser.password, 10)
+      const user = new User({
+        username: helper.testUser.username,
+        name: helper.testUser.name,
+        passwordHash: passwordHash
+      })
+
+      await user.save()
+
+      const response = await api
+        .post('/api/login')
+        .send({
+          username: helper.testUser.username,
+          password: helper.testUser.password
+        })
+        .expect(200)
+
+      token = response.body.token
+    })
+
     test('succeeds with status code 201 if data is valid', async() => {
       const newBlog = {
         title: 'A new test blog',
@@ -90,6 +115,7 @@ describe('BLOGS - when some blog posts are initially saved in the DB', () => {
       }
       await api
         .post('/api/blogs')
+        .set({ Authorization: `Bearer ${token}` })
         .send(newBlog)
         .expect(201)
         .expect('Content-Type',/application\/json/)
@@ -101,6 +127,20 @@ describe('BLOGS - when some blog posts are initially saved in the DB', () => {
       assert.strictEqual(response.body.length, helper.initialBlogs.length + 1)
       assert(title.includes('A new test blog'))
 
+    })
+
+    test('fails with status code 401 if login token is invalid', async() => {
+      const newBlog = {
+        title: 'A new test blog',
+        author: 'John Bob',
+        url: 'https://pointerpointer.com/',
+        likes: 25
+      }
+      await api
+        .post('/api/blogs')
+        .set({ Authorization: 'Bearer blablabla' })
+        .send(newBlog)
+        .expect(401)
     })
 
     test('succeeds with status code 201 and gets default likes value of 0 if the likes field is missing', async() => {
@@ -133,6 +173,7 @@ describe('BLOGS - when some blog posts are initially saved in the DB', () => {
       }
       await api
         .post('/api/blogs')
+        .set({ Authorization: `Bearer ${token}` })
         .send(newBlog)
         .expect(400)
     })
@@ -145,6 +186,7 @@ describe('BLOGS - when some blog posts are initially saved in the DB', () => {
       }
       await api
         .post('/api/blogs')
+        .set({ Authorization: `Bearer ${token}` })
         .send(newBlog)
         .expect(400)
     })
@@ -153,30 +195,88 @@ describe('BLOGS - when some blog posts are initially saved in the DB', () => {
 
   describe('deletion of a blog post', () => {
 
+    //login into the db as test user for tests and get token
+    let token = ''
+    beforeEach(async() => {
+      await User.deleteMany({})
+
+      const passwordHash = await bcrypt.hash(helper.testUser.password, 10)
+      const user = new User({
+        username: helper.testUser.username,
+        name: helper.testUser.name,
+        passwordHash: passwordHash
+      })
+
+      await user.save()
+
+      const response = await api
+        .post('/api/login')
+        .send({
+          username: helper.testUser.username,
+          password: helper.testUser.password
+        })
+        .expect(200)
+
+      token = response.body.token
+    })
+
     test('succeeds with status code 204 if id is valid', async() => {
-      const newBlog = new Blog({
+      const newBlog = {
         title: 'A test blog that will be added then deleted',
         author: 'John Bob',
         url: 'https://pointerpointer.com/',
         likes: 20
-      })
-      await newBlog.save()
-      const newBlogID = newBlog._id.toString()
-      await api
-        .delete(`/api/blogs/${newBlogID}`)
-        .expect(204)
+      }
+      const response = await api
+        .post('/api/blogs')
+        .set({ Authorization: `Bearer ${token}` })
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type',/application\/json/)
 
+      const addedBlog = response.body
+
+      const addedBlogID = addedBlog.id
+      await api
+        .delete(`/api/blogs/${addedBlogID}`)
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(204)
+    })
+
+    test('fails with status code 401 if login token is invalid', async() => {
+      const newBlog = {
+        title: 'A test blog that will be added then deleted',
+        author: 'John Bob',
+        url: 'https://pointerpointer.com/',
+        likes: 20
+      }
+      const response = await api
+        .post('/api/blogs')
+        .set({ Authorization: `Bearer ${token}` })
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type',/application\/json/)
+
+      const addedBlog = response.body
+
+      const addedBlogID = addedBlog.id
+      await api
+        .delete(`/api/blogs/${addedBlogID}`)
+        .set({ Authorization: 'Bearer blablabla' })
+        .expect(401)
     })
 
     test('fails with status code 404 if blog post does not exist', async() => {
       await api
         .delete(`/api/blogs/${helper.nonExistingID}`)
+        .set({ Authorization: `Bearer ${token}` })
         .expect(404)
     })
 
     test('fails with status code 400 if id is invalid', async() => {
       await api
         .delete('/api/blogs/0')
+        .set({ Authorization: `Bearer ${token}` })
         .expect(400)
     })
 
@@ -209,6 +309,7 @@ describe('BLOGS - when some blog posts are initially saved in the DB', () => {
   })
 
 })
+
 
 describe('USERS - when one user is initially saved in the DB', () => {
   beforeEach(async () => {
@@ -348,6 +449,7 @@ describe('USERS - when one user is initially saved in the DB', () => {
 
   })
 })
+
 
 after(async() => {
   await mongoose.connection.close()
