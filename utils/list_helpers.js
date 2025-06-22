@@ -1,100 +1,93 @@
-const lodash = require('lodash')
+const lodash = require("lodash");
 
 // eslint-disable-next-line no-unused-vars
 const dummy = (blogs) => {
-  return 1
-}
+  return 1;
+};
 
 const totalLikes = (blogs) => {
-  var amountOfLikes = 0
+  var amountOfLikes = 0;
   for (let i = 0; i < blogs.length; i++) {
-    const blog = blogs[i]
-    amountOfLikes += blog.likes
+    const blog = blogs[i];
+    amountOfLikes += blog.likes;
   }
-  return amountOfLikes
-}
+  return amountOfLikes;
+};
 
 const favoriteBlog = (blogs) => {
   if (blogs.length === 0) {
-    return NaN
+    return NaN;
   }
 
-  var favorite = blogs[0]
+  var favorite = blogs[0];
   for (let i = 0; i < blogs.length; i++) {
-    const blog = blogs[i]
+    const blog = blogs[i];
     if (blog.likes > favorite.likes) {
-      favorite = blog
+      favorite = blog;
     }
   }
 
-  delete favorite._id
-  delete favorite.url
-  delete favorite.__v
+  delete favorite._id;
+  delete favorite.url;
+  delete favorite.__v;
 
-  return favorite
-
-}
+  return favorite;
+};
 
 const mostBlogs = (blogs) => {
   if (blogs.length === 0) {
-    return NaN
+    return NaN;
   }
 
-  const blogsGroupedByAuthor = lodash.groupBy(blogs,'author')
+  const blogsGroupedByAuthor = lodash.groupBy(blogs, "author");
 
-  var maxBlogs = 0
-  var maxAuthor = ''
+  var maxBlogs = 0;
+  var maxAuthor = "";
 
   for (let i = 0; i < Object.keys(blogsGroupedByAuthor).length; i++) {
-
-    const currentAuthor = Object.keys(blogsGroupedByAuthor)[i]
-    const blogNumber = blogsGroupedByAuthor[currentAuthor].length
+    const currentAuthor = Object.keys(blogsGroupedByAuthor)[i];
+    const blogNumber = blogsGroupedByAuthor[currentAuthor].length;
     if (blogNumber > maxBlogs) {
-      maxBlogs = blogNumber
-      maxAuthor = currentAuthor
+      maxBlogs = blogNumber;
+      maxAuthor = currentAuthor;
     }
-
   }
 
   return {
     author: maxAuthor,
-    blogs: maxBlogs
-  }
-
-}
+    blogs: maxBlogs,
+  };
+};
 
 const mostLikes = (blogs) => {
   if (blogs.length === 0) {
-    return NaN
+    return NaN;
   }
 
-  const blogsGroupedByAuthor = lodash.groupBy(blogs,'author')
+  const blogsGroupedByAuthor = lodash.groupBy(blogs, "author");
 
-  var maxLikes = 0
-  var maxAuthor = ''
+  var maxLikes = 0;
+  var maxAuthor = "";
 
   for (let i = 0; i < Object.keys(blogsGroupedByAuthor).length; i++) {
-
-    const currentAuthor = Object.keys(blogsGroupedByAuthor)[i]
-    const totalAuthorLikes = totalLikes(blogsGroupedByAuthor[currentAuthor])
+    const currentAuthor = Object.keys(blogsGroupedByAuthor)[i];
+    const totalAuthorLikes = totalLikes(blogsGroupedByAuthor[currentAuthor]);
     if (totalAuthorLikes > maxLikes) {
-      maxLikes = totalAuthorLikes
-      maxAuthor = currentAuthor
+      maxLikes = totalAuthorLikes;
+      maxAuthor = currentAuthor;
     }
-
   }
 
   return {
     author: maxAuthor,
-    likes: maxLikes
-  }
-
-}
+    likes: maxLikes,
+  };
+};
 
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
   mostBlogs,
-  mostLikes
-}
+  mostLikes,
+};
